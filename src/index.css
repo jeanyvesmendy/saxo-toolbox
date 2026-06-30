@@ -7,7 +7,7 @@
 }
 
 body {
-  background: #0d0d0d;
+  background: #14110d;
   color: #e8e8e8;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   min-height: 100vh;
@@ -20,14 +20,14 @@ body {
 }
 
 input[type="range"] {
-  accent-color: #00d4b4;
+  accent-color: #c9a24b;
 }
 
 ::-webkit-scrollbar {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #111;
+  background: #16120c;
 }
 ::-webkit-scrollbar-thumb {
   background: #2a2a2a;

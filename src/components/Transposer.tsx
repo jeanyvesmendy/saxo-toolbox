@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ArrowRight } from 'lucide-react'
 
-const card = { background: '#161616', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16 }
+const card = { background: '#1f1a12', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16 }
 
 const NOTES_SHARP = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 const NOTES_FLAT  = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
@@ -21,10 +21,6 @@ const KEYS = [
   { name: 'La', idx: 9 }, { name: 'Sib', idx: 10 }, { name: 'Si', idx: 11 },
 ]
 
-function transposeNote(noteIdx: number, fromOffset: number, toOffset: number): string {
-  const idx = ((noteIdx - fromOffset + toOffset) % 12 + 12) % 12
-  return NOTES_FLAT[idx]
-}
 
 function transposeText(text: string, fromOffset: number, toOffset: number): string {
   const noteRegex = /\b([A-G])(#|b)?\b/g
@@ -49,7 +45,7 @@ export default function Transposer() {
 
   const transposed = text ? transposeText(text, fromInstr.offset, toInstr.offset) : ''
 
-  const lbl = { fontSize: 11, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.12em', textTransform: 'uppercase' as const, marginBottom: 10, display: 'block' }
+  const lbl = { fontSize: 11, color: 'rgba(201,162,75,0.6)', letterSpacing: '0.14em', textTransform: 'uppercase' as const, marginBottom: 10, display: 'block', fontWeight: 600 }
 
   return (
     <div style={{ maxWidth: 700, margin: '0 auto' }}>
@@ -62,10 +58,10 @@ export default function Transposer() {
               <button key={i.id} onClick={() => setFrom(i.id)}
                 style={{
                   padding: '10px 14px', borderRadius: 10, fontSize: 13, textAlign: 'left', cursor: 'pointer', transition: 'all 0.15s', border: '1px solid',
-                  background: from === i.id ? 'rgba(0,212,180,0.1)' : 'rgba(255,255,255,0.04)',
-                  borderColor: from === i.id ? 'rgba(0,212,180,0.35)' : 'rgba(255,255,255,0.07)',
-                  color: from === i.id ? '#00d4b4' : 'rgba(255,255,255,0.6)',
-                  fontWeight: from === i.id ? 600 : 400,
+                  background: from === i.id ? '#c9a24b' : 'rgba(255,255,255,0.04)',
+                  borderColor: from === i.id ? '#c9a24b' : 'rgba(255,255,255,0.07)',
+                  color: from === i.id ? '#14110d' : 'rgba(255,255,255,0.6)',
+                  fontWeight: from === i.id ? 700 : 400,
                 }}
               >{i.label}</button>
             ))}
@@ -78,10 +74,10 @@ export default function Transposer() {
               <button key={i.id} onClick={() => setTo(i.id)}
                 style={{
                   padding: '10px 14px', borderRadius: 10, fontSize: 13, textAlign: 'left', cursor: 'pointer', transition: 'all 0.15s', border: '1px solid',
-                  background: to === i.id ? 'rgba(0,212,180,0.1)' : 'rgba(255,255,255,0.04)',
-                  borderColor: to === i.id ? 'rgba(0,212,180,0.35)' : 'rgba(255,255,255,0.07)',
-                  color: to === i.id ? '#00d4b4' : 'rgba(255,255,255,0.6)',
-                  fontWeight: to === i.id ? 600 : 400,
+                  background: to === i.id ? '#c9a24b' : 'rgba(255,255,255,0.04)',
+                  borderColor: to === i.id ? '#c9a24b' : 'rgba(255,255,255,0.07)',
+                  color: to === i.id ? '#14110d' : 'rgba(255,255,255,0.6)',
+                  fontWeight: to === i.id ? 700 : 400,
                 }}
               >{i.label}</button>
             ))}
@@ -98,7 +94,7 @@ export default function Transposer() {
           <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', paddingBottom: 8 }}>{toInstr.label}</div>
           {KEYS.map(k => (
             <div key={k.idx} style={{ display: 'contents' }}>
-              <div style={{ fontSize: 14, color: '#00d4b4', fontWeight: 600, padding: '3px 0' }}>{k.name}</div>
+              <div style={{ fontSize: 14, color: '#c9a24b', fontWeight: 600, padding: '3px 0' }}>{k.name}</div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ArrowRight size={11} color="rgba(255,255,255,0.2)" /></div>
               <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.75)', fontWeight: 500, padding: '3px 0' }}>
                 {NOTES_FLAT[((k.idx - fromInstr.offset + toInstr.offset) % 12 + 12) % 12]}
@@ -121,7 +117,7 @@ export default function Transposer() {
           </div>
           <div>
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginBottom: 6 }}>{toInstr.label}</div>
-            <div style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '10px 12px', fontSize: 13, color: '#00d4b4', fontFamily: 'monospace', minHeight: 120, whiteSpace: 'pre-wrap' }}>
+            <div style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '10px 12px', fontSize: 13, color: '#c9a24b', fontFamily: 'monospace', minHeight: 120, whiteSpace: 'pre-wrap' }}>
               {transposed || <span style={{ color: 'rgba(255,255,255,0.15)' }}>Résultat…</span>}
             </div>
           </div>

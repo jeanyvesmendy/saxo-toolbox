@@ -19,27 +19,9 @@ function parseRoot(sym: string): number {
   return CHR.indexOf(SHARP[m[1]] ?? m[1])
 }
 
-function qualityIntervals(q: string): number[] {
-  if (q.startsWith('maj7') || q === 'Δ') return [0,4,7,11]
-  if (q.startsWith('m7b5') || q === 'ø') return [0,3,6,10]
-  if (q.startsWith('dim7') || q === '°') return [0,3,6,9]
-  if (q.startsWith('m7') || q === 'm9')  return [0,3,7,10]
-  if (q.startsWith('7') || q === '9')    return [0,4,7,10]
-  if (q.startsWith('m6'))               return [0,3,7,9]
-  if (q.startsWith('6'))                return [0,4,7,9]
-  if (q.startsWith('m'))                return [0,3,7]
-  return [0,4,7]
-}
 
-function chordNotes(sym: string, oct: number): string[] {
-  const root = parseRoot(sym)
-  const quality = sym.replace(/^[A-G][b#]?/, '')
-  return qualityIntervals(quality).map(i => {
-    const idx = (root + i) % 12
-    const o   = oct + Math.floor((root + i) / 12)
-    return `${CHR[idx]}${o}`
-  })
-}
+
+
 
 function midiToName(m: number): string {
   return `${CHR[((m % 12) + 12) % 12]}${Math.floor(m / 12) - 1}`
@@ -219,6 +201,81 @@ const STYLES: StyleDef[] = [
     }
   },
   {
+    id: 'ii_v_i_maj',
+    name: 'II – V – I Majeur',
+    desc: 'Vamp IIm7 → V7 → Imaj7 · swing · toutes tonalités',
+    bpmDefault: 120,
+    swing: true,
+    pianoPattern: [1,0,0,0,0,0,0,1],
+    bassPattern:  [1,0,1,0,1,0,1,0],
+    kickPattern:  [1,0,0,0,0,0,0,0],
+    snarePattern: [0,0,1,0,0,0,1,0],
+    hihatPattern: [1,1,1,1,1,1,1,1],
+    sections: [
+      {label:'IIm7', startBar:0},
+      {label:'V7',   startBar:1},
+      {label:'Imaj7',startBar:2},
+    ],
+    getChords: (r) => {
+      const N = (s:number,q:string) => noteAt(r,s,q)
+      return [
+        {symbol:N(2,'m7'),   beats:4},
+        {symbol:N(7,'7'),    beats:4},
+        {symbol:N(0,'maj7'), beats:8},
+      ]
+    }
+  },
+  {
+    id: 'ii_v_i_min',
+    name: 'II – V – I Mineur',
+    desc: 'IIø7 → V7 → Im7 · couleur modale-mineure',
+    bpmDefault: 110,
+    swing: true,
+    pianoPattern: [1,0,0,0,0,0,0,1],
+    bassPattern:  [1,0,1,0,1,0,1,0],
+    kickPattern:  [1,0,0,0,0,0,0,0],
+    snarePattern: [0,0,1,0,0,0,1,0],
+    hihatPattern: [1,1,1,1,1,1,1,1],
+    sections: [
+      {label:'IIø7', startBar:0},
+      {label:'V7',   startBar:1},
+      {label:'Im7',  startBar:2},
+    ],
+    getChords: (r) => {
+      const N = (s:number,q:string) => noteAt(r,s,q)
+      return [
+        {symbol:N(2,'m7b5'), beats:4},
+        {symbol:N(7,'7'),    beats:4},
+        {symbol:N(0,'m7'),   beats:8},
+      ]
+    }
+  },
+  {
+    id: 'ii_v_i_cycle',
+    name: 'Cycle II – V – I',
+    desc: 'Descente par quintes · 4 tonalités · exercise Coltrane',
+    bpmDefault: 140,
+    swing: true,
+    pianoPattern: [1,0,0,1,0,0,1,0],
+    bassPattern:  [1,0,1,0,1,0,1,0],
+    kickPattern:  [1,0,0,0,0,0,0,0],
+    snarePattern: [0,0,1,0,0,0,1,0],
+    hihatPattern: [1,1,1,1,1,1,1,1],
+    getChords: (r) => {
+      const N = (s:number,q:string) => noteAt(r,s,q)
+      return [
+        // Tonalité 1 (ex. Do)
+        {symbol:N(2,'m7'),  beats:2},{symbol:N(7,'7'),  beats:2},{symbol:N(0,'maj7'),  beats:4},
+        // Tonalité 2 — quinte en dessous (ex. Fa)
+        {symbol:N(7,'m7'),  beats:2},{symbol:N(0,'7'),  beats:2},{symbol:N(5,'maj7'),  beats:4},
+        // Tonalité 3 (ex. Sib)
+        {symbol:N(0,'m7'),  beats:2},{symbol:N(5,'7'),  beats:2},{symbol:N(10,'maj7'), beats:4},
+        // Tonalité 4 (ex. Mib)
+        {symbol:N(5,'m7'),  beats:2},{symbol:N(10,'7'), beats:2},{symbol:N(3,'maj7'),  beats:4},
+      ]
+    }
+  },
+  {
     id: 'minor_blues',
     name: 'Blues Mineur',
     desc: 'Im IVm bVI V · ambiance Coltrane',
@@ -259,6 +316,346 @@ const STYLES: StyleDef[] = [
     snarePattern: [0,0,0,0,1,0,0,0],
     hihatPattern: [1,0,1,0,1,0,1,0],
     getChords: (r) => [{ symbol: noteAt(r, 0, 'm7'), beats: 16 }]
+  },
+
+  // ── Thèmes libres de droit ──────────────────────────────────────────────
+
+  {
+    id: 'billies_bounce',
+    name: "Billie's Bounce",
+    desc: 'Blues 12 mes. · Charlie Parker 1945 · domaine public',
+    bpmDefault: 120, swing: true,
+    pianoPattern: [1,0,0,0,0,1,0,0],
+    bassPattern:  [1,0,1,0,1,0,1,0],
+    kickPattern:  [1,0,0,0,1,0,0,0],
+    snarePattern: [0,0,1,0,0,0,1,0],
+    hihatPattern: [1,1,1,1,1,1,1,1],
+    getChords: (r) => {
+      const N = (s:number,q:string) => noteAt(r,s,q)
+      return [
+        {symbol:N(0,'7'),    beats:4},
+        {symbol:N(5,'7'),    beats:4},
+        {symbol:N(0,'7'),    beats:4},
+        {symbol:N(0,'7'),    beats:4},
+        {symbol:N(5,'7'),    beats:4},
+        {symbol:N(6,'dim7'), beats:4},
+        {symbol:N(0,'7'),    beats:4},
+        {symbol:N(9,'7'),    beats:4},
+        {symbol:N(2,'m7'),   beats:4},
+        {symbol:N(7,'7'),    beats:4},
+        {symbol:N(0,'7'),    beats:2},{symbol:N(9,'7'),  beats:2},
+        {symbol:N(2,'m7'),   beats:2},{symbol:N(7,'7'),  beats:2},
+      ]
+    }
+  },
+  {
+    id: 'nows_the_time',
+    name: "Now's the Time",
+    desc: 'Blues 12 mes. · Charlie Parker 1945 · domaine public',
+    bpmDefault: 110, swing: true,
+    pianoPattern: [1,0,0,0,0,1,0,0],
+    bassPattern:  [1,0,1,0,1,0,1,0],
+    kickPattern:  [1,0,0,0,1,0,0,0],
+    snarePattern: [0,0,1,0,0,0,1,0],
+    hihatPattern: [1,1,1,1,1,1,1,1],
+    getChords: (r) => {
+      const N = (s:number,q:string) => noteAt(r,s,q)
+      return [
+        {symbol:N(0,'7'),   beats:4},
+        {symbol:N(5,'7'),   beats:4},
+        {symbol:N(0,'7'),   beats:4},
+        {symbol:N(0,'7'),   beats:4},
+        {symbol:N(5,'7'),   beats:4},
+        {symbol:N(5,'7'),   beats:4},
+        {symbol:N(0,'7'),   beats:4},
+        {symbol:N(0,'7'),   beats:4},
+        {symbol:N(2,'m7'),  beats:4},
+        {symbol:N(7,'7'),   beats:4},
+        {symbol:N(0,'7'),   beats:2},{symbol:N(9,'7'),  beats:2},
+        {symbol:N(2,'m7'),  beats:2},{symbol:N(7,'7'),  beats:2},
+      ]
+    }
+  },
+  {
+    id: 'yardbird_suite',
+    name: 'Yardbird Suite',
+    desc: 'AABA 32 mes. · Charlie Parker 1946 · domaine public',
+    bpmDefault: 130, swing: true,
+    pianoPattern: [1,0,0,0,0,1,0,0],
+    bassPattern:  [1,0,1,0,1,0,1,0],
+    kickPattern:  [1,0,0,0,1,0,0,0],
+    snarePattern: [0,0,1,0,0,0,1,0],
+    hihatPattern: [1,1,1,1,1,1,1,1],
+    getChords: (r) => {
+      const N = (s:number,q:string) => noteAt(r,s,q)
+      const A = [
+        {symbol:N(0,'maj7'), beats:2},{symbol:N(1,'dim7'), beats:2},
+        {symbol:N(2,'m7'),   beats:2},{symbol:N(7,'7'),    beats:2},
+        {symbol:N(0,'maj7'), beats:2},{symbol:N(3,'7'),    beats:2},
+        {symbol:N(2,'m7'),   beats:2},{symbol:N(7,'7'),    beats:2},
+        {symbol:N(4,'m7'),   beats:4},
+        {symbol:N(3,'m7'),   beats:4},
+        {symbol:N(2,'m7'),   beats:4},
+        {symbol:N(7,'7'),    beats:4},
+      ]
+      const B = [
+        {symbol:N(5,'7'),    beats:4},
+        {symbol:N(5,'7'),    beats:4},
+        {symbol:N(2,'m7'),   beats:2},{symbol:N(7,'7'),  beats:2},
+        {symbol:N(0,'maj7'), beats:4},
+        {symbol:N(9,'m7'),   beats:2},{symbol:N(2,'7'),  beats:2},
+        {symbol:N(2,'m7'),   beats:2},{symbol:N(7,'7'),  beats:2},
+        {symbol:N(0,'maj7'), beats:4},
+        {symbol:N(7,'7'),    beats:4},
+      ]
+      return [...A,...A,...B,...A]
+    }
+  },
+  {
+    id: 'confirmation',
+    name: 'Confirmation',
+    desc: 'AABA 32 mes. · Charlie Parker 1946 · domaine public',
+    bpmDefault: 140, swing: true,
+    pianoPattern: [1,0,0,0,0,1,0,0],
+    bassPattern:  [1,0,1,0,1,0,1,0],
+    kickPattern:  [1,0,0,0,1,0,0,0],
+    snarePattern: [0,0,1,0,0,0,1,0],
+    hihatPattern: [1,1,1,1,1,1,1,1],
+    getChords: (r) => {
+      const N = (s:number,q:string) => noteAt(r,s,q)
+      const A = [
+        {symbol:N(0,'maj7'),   beats:4},
+        {symbol:N(11,'m7b5'),  beats:2},{symbol:N(4,'7'),  beats:2},
+        {symbol:N(9,'m7'),     beats:4},
+        {symbol:N(7,'m7'),     beats:2},{symbol:N(0,'7'),  beats:2},
+        {symbol:N(5,'maj7'),   beats:4},
+        {symbol:N(5,'m7'),     beats:2},{symbol:N(10,'7'), beats:2},
+        {symbol:N(4,'m7'),     beats:2},{symbol:N(9,'7'),  beats:2},
+        {symbol:N(3,'m7'),     beats:2},{symbol:N(8,'7'),  beats:2},
+      ]
+      const B = [
+        {symbol:N(2,'m7'),     beats:2},{symbol:N(7,'7'),  beats:2},
+        {symbol:N(0,'maj7'),   beats:4},
+        {symbol:N(4,'m7'),     beats:2},{symbol:N(9,'7'),  beats:2},
+        {symbol:N(2,'maj7'),   beats:4},
+        {symbol:N(7,'m7'),     beats:2},{symbol:N(0,'7'),  beats:2},
+        {symbol:N(5,'maj7'),   beats:4},
+        {symbol:N(4,'m7'),     beats:2},{symbol:N(9,'7'),  beats:2},
+        {symbol:N(3,'m7'),     beats:2},{symbol:N(8,'7'),  beats:2},
+      ]
+      return [...A,...A,...B,...A]
+    }
+  },
+  {
+    id: 'ornithology',
+    name: 'Ornithology',
+    desc: 'How High the Moon · AABA · Charlie Parker 1946',
+    bpmDefault: 150, swing: true,
+    pianoPattern: [1,0,0,0,0,1,0,0],
+    bassPattern:  [1,0,1,0,1,0,1,0],
+    kickPattern:  [1,0,0,0,1,0,0,0],
+    snarePattern: [0,0,1,0,0,0,1,0],
+    hihatPattern: [1,1,1,1,1,1,1,1],
+    getChords: (r) => {
+      const N = (s:number,q:string) => noteAt(r,s,q)
+      // Changes "How High the Moon" (tonic = I)
+      const A = [
+        {symbol:N(0,'maj7'),  beats:4},
+        {symbol:N(0,'m7'),    beats:2},{symbol:N(5,'7'),   beats:2},
+        {symbol:N(10,'maj7'), beats:4},
+        {symbol:N(10,'m7'),   beats:2},{symbol:N(3,'7'),   beats:2},
+        {symbol:N(8,'maj7'),  beats:4},
+        {symbol:N(2,'m7'),    beats:2},{symbol:N(7,'7'),   beats:2},
+        {symbol:N(0,'maj7'),  beats:4},
+        {symbol:N(2,'m7'),    beats:2},{symbol:N(7,'7'),   beats:2},
+      ]
+      const B = [
+        {symbol:N(1,'maj7'),  beats:4},
+        {symbol:N(1,'m7'),    beats:2},{symbol:N(6,'7'),   beats:2},
+        {symbol:N(11,'maj7'), beats:4},
+        {symbol:N(0,'m7'),    beats:2},{symbol:N(5,'7'),   beats:2},
+        {symbol:N(10,'maj7'), beats:4},
+        {symbol:N(10,'m7'),   beats:2},{symbol:N(3,'7'),   beats:2},
+        {symbol:N(8,'maj7'),  beats:4},
+        {symbol:N(2,'m7'),    beats:2},{symbol:N(7,'7'),   beats:2},
+      ]
+      return [...A,...A,...B,...A]
+    }
+  },
+  {
+    id: 'scrapple',
+    name: 'Scrapple from the Apple',
+    desc: 'Rhythm Changes F · AABA · Charlie Parker 1947',
+    bpmDefault: 180, swing: true,
+    pianoPattern: [1,0,0,1,0,0,1,0],
+    bassPattern:  [1,0,1,0,1,0,1,0],
+    kickPattern:  [1,0,0,0,1,0,0,0],
+    snarePattern: [0,0,1,0,0,0,1,0],
+    hihatPattern: [1,1,1,1,1,1,1,1],
+    getChords: (r) => {
+      const N = (s:number,q:string) => noteAt(r,s,q)
+      const A = [
+        {symbol:N(0,'maj7'),  beats:2},{symbol:N(9,'m7'),   beats:2},
+        {symbol:N(2,'m7'),    beats:2},{symbol:N(7,'7'),    beats:2},
+        {symbol:N(0,'maj7'),  beats:2},{symbol:N(9,'m7'),   beats:2},
+        {symbol:N(2,'m7'),    beats:2},{symbol:N(7,'7'),    beats:2},
+        {symbol:N(0,'maj7'),  beats:2},{symbol:N(0,'7'),    beats:2},
+        {symbol:N(5,'7'),     beats:2},{symbol:N(6,'dim7'), beats:2},
+        {symbol:N(0,'maj7'),  beats:2},{symbol:N(9,'7'),    beats:2},
+        {symbol:N(2,'m7'),    beats:2},{symbol:N(7,'7'),    beats:2},
+      ]
+      const B = [
+        {symbol:N(4,'7'),     beats:4},
+        {symbol:N(4,'7'),     beats:4},
+        {symbol:N(9,'7'),     beats:4},
+        {symbol:N(9,'7'),     beats:4},
+        {symbol:N(2,'7'),     beats:4},
+        {symbol:N(2,'7'),     beats:4},
+        {symbol:N(7,'7'),     beats:4},
+        {symbol:N(7,'7'),     beats:4},
+      ]
+      return [...A,...A,...B,...A]
+    }
+  },
+  {
+    id: 'moose_the_mooche',
+    name: 'Moose the Mooche',
+    desc: 'Rhythm Changes Eb · AABA · Charlie Parker 1946',
+    bpmDefault: 160, swing: true,
+    pianoPattern: [1,0,0,1,0,0,1,0],
+    bassPattern:  [1,0,1,0,1,0,1,0],
+    kickPattern:  [1,0,0,0,1,0,0,0],
+    snarePattern: [0,0,1,0,0,0,1,0],
+    hihatPattern: [1,1,1,1,1,1,1,1],
+    getChords: (r) => {
+      const N = (s:number,q:string) => noteAt(r,s,q)
+      const A = [
+        {symbol:N(0,'maj7'),  beats:2},{symbol:N(9,'m7'),   beats:2},
+        {symbol:N(2,'m7'),    beats:2},{symbol:N(7,'7'),    beats:2},
+        {symbol:N(0,'maj7'),  beats:2},{symbol:N(9,'m7'),   beats:2},
+        {symbol:N(2,'m7'),    beats:2},{symbol:N(7,'7'),    beats:2},
+        {symbol:N(0,'maj7'),  beats:2},{symbol:N(0,'7'),    beats:2},
+        {symbol:N(5,'7'),     beats:2},{symbol:N(6,'dim7'), beats:2},
+        {symbol:N(0,'maj7'),  beats:2},{symbol:N(9,'7'),    beats:2},
+        {symbol:N(2,'m7'),    beats:2},{symbol:N(7,'7'),    beats:2},
+      ]
+      const B = [
+        {symbol:N(4,'7'),     beats:4},
+        {symbol:N(4,'7'),     beats:4},
+        {symbol:N(9,'7'),     beats:4},
+        {symbol:N(9,'7'),     beats:4},
+        {symbol:N(2,'7'),     beats:4},
+        {symbol:N(2,'7'),     beats:4},
+        {symbol:N(7,'7'),     beats:4},
+        {symbol:N(7,'7'),     beats:4},
+      ]
+      return [...A,...A,...B,...A]
+    }
+  },
+  {
+    id: 'christopher_columbus',
+    name: 'Christopher Columbus',
+    desc: 'Swing AABA · Henderson / Chu Berry 1936 · domaine public',
+    bpmDefault: 145, swing: true,
+    pianoPattern: [1,0,1,0,0,1,0,0],
+    bassPattern:  [1,0,1,0,1,0,1,0],
+    kickPattern:  [1,0,0,0,1,0,0,0],
+    snarePattern: [0,0,1,0,0,0,1,0],
+    hihatPattern: [1,1,1,1,1,1,1,1],
+    getChords: (r) => {
+      const N = (s:number,q:string) => noteAt(r,s,q)
+      const A = [
+        {symbol:N(0,'7'),    beats:4},
+        {symbol:N(0,'7'),    beats:4},
+        {symbol:N(5,'7'),    beats:4},
+        {symbol:N(5,'7'),    beats:4},
+        {symbol:N(9,'7'),    beats:4},
+        {symbol:N(9,'7'),    beats:4},
+        {symbol:N(2,'m7'),   beats:2},{symbol:N(7,'7'),  beats:2},
+        {symbol:N(0,'7'),    beats:4},
+      ]
+      const B = [
+        {symbol:N(9,'7'),    beats:4},
+        {symbol:N(9,'7'),    beats:4},
+        {symbol:N(2,'7'),    beats:4},
+        {symbol:N(2,'7'),    beats:4},
+        {symbol:N(7,'7'),    beats:4},
+        {symbol:N(7,'7'),    beats:4},
+        {symbol:N(2,'m7'),   beats:2},{symbol:N(7,'7'),  beats:2},
+        {symbol:N(0,'7'),    beats:4},
+      ]
+      return [...A,...A,...B,...A]
+    }
+  },
+  {
+    id: 'wrappin_it_up',
+    name: "Wrappin' It Up",
+    desc: 'The Lindy Glide · swing · Fletcher Henderson 1934',
+    bpmDefault: 165, swing: true,
+    pianoPattern: [1,0,0,1,0,0,1,0],
+    bassPattern:  [1,0,1,0,1,0,1,0],
+    kickPattern:  [1,0,0,0,1,0,0,0],
+    snarePattern: [0,0,1,0,0,0,1,0],
+    hihatPattern: [1,1,1,1,1,1,1,1],
+    getChords: (r) => {
+      const N = (s:number,q:string) => noteAt(r,s,q)
+      const A = [
+        {symbol:N(0,'maj7'),  beats:2},{symbol:N(9,'7'),   beats:2},
+        {symbol:N(2,'m7'),    beats:2},{symbol:N(7,'7'),   beats:2},
+        {symbol:N(0,'maj7'),  beats:2},{symbol:N(4,'7'),   beats:2},
+        {symbol:N(2,'m7'),    beats:2},{symbol:N(7,'7'),   beats:2},
+        {symbol:N(0,'7'),     beats:2},{symbol:N(5,'7'),   beats:2},
+        {symbol:N(2,'m7'),    beats:2},{symbol:N(7,'7'),   beats:2},
+        {symbol:N(0,'maj7'),  beats:2},{symbol:N(9,'m7'),  beats:2},
+        {symbol:N(2,'m7'),    beats:2},{symbol:N(7,'7'),   beats:2},
+      ]
+      const B = [
+        {symbol:N(4,'7'),     beats:4},
+        {symbol:N(4,'7'),     beats:4},
+        {symbol:N(9,'7'),     beats:4},
+        {symbol:N(9,'7'),     beats:4},
+        {symbol:N(2,'7'),     beats:4},
+        {symbol:N(2,'7'),     beats:4},
+        {symbol:N(7,'7'),     beats:4},
+        {symbol:N(7,'7'),     beats:4},
+      ]
+      return [...A,...A,...B,...A]
+    }
+  },
+  {
+    id: 'nostalgia_navarro',
+    name: 'Nostalgia',
+    desc: 'Ballade bebop · Fats Navarro 1947 · domaine public',
+    bpmDefault: 60, swing: true,
+    pianoPattern: [1,0,0,0,1,0,0,0],
+    bassPattern:  [1,0,1,0,1,0,1,0],
+    kickPattern:  [1,0,0,0,0,0,0,0],
+    snarePattern: [0,0,0,0,1,0,0,0],
+    hihatPattern: [1,0,1,0,1,0,1,0],
+    getChords: (r) => {
+      const N = (s:number,q:string) => noteAt(r,s,q)
+      const A = [
+        {symbol:N(0,'maj7'),   beats:4},
+        {symbol:N(11,'m7b5'),  beats:2},{symbol:N(4,'7'),  beats:2},
+        {symbol:N(9,'m7'),     beats:4},
+        {symbol:N(9,'m7'),     beats:2},{symbol:N(9,'7'),  beats:2},
+        {symbol:N(2,'m7'),     beats:2},{symbol:N(7,'7'),  beats:2},
+        {symbol:N(0,'maj7'),   beats:2},{symbol:N(4,'7'),  beats:2},
+        {symbol:N(2,'m7'),     beats:2},{symbol:N(7,'7'),  beats:2},
+        {symbol:N(0,'maj7'),   beats:4},
+      ]
+      const B = [
+        {symbol:N(5,'m7'),     beats:2},{symbol:N(10,'7'), beats:2},
+        {symbol:N(3,'maj7'),   beats:4},
+        {symbol:N(8,'m7'),     beats:2},{symbol:N(1,'7'),  beats:2},
+        {symbol:N(6,'maj7'),   beats:4},
+        {symbol:N(2,'m7'),     beats:2},{symbol:N(7,'7'),  beats:2},
+        {symbol:N(0,'maj7'),   beats:4},
+        {symbol:N(2,'m7'),     beats:2},{symbol:N(7,'7'),  beats:2},
+        {symbol:N(0,'maj7'),   beats:4},
+      ]
+      return [...A,...A,...B,...A]
+    }
   },
 ]
 
@@ -509,7 +906,7 @@ export default function BackingTrack() {
   useEffect(() => { stop() }, [styleId, rootIdx, stop])
   useEffect(() => () => stop(), [stop])
 
-  const card = { background: '#161616', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16 }
+  const card = { background: '#1f1a12', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16 }
   const lbl  = { fontSize: 11, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.12em', textTransform: 'uppercase' as const, marginBottom: 10, display: 'block' }
 
   return (
@@ -522,10 +919,10 @@ export default function BackingTrack() {
           {STYLES.map(s => (
             <button key={s.id} onClick={() => { setStyleId(s.id); setBpm(s.bpmDefault) }} style={{
               padding: '10px 12px', borderRadius: 12, textAlign: 'left', cursor: 'pointer', border: '1px solid', transition: 'all 0.15s',
-              background: styleId === s.id ? 'rgba(0,212,180,0.1)' : 'rgba(255,255,255,0.04)',
-              borderColor: styleId === s.id ? 'rgba(0,212,180,0.35)' : 'rgba(255,255,255,0.07)',
+              background: styleId === s.id ? 'rgba(201,162,75,0.1)' : 'rgba(255,255,255,0.04)',
+              borderColor: styleId === s.id ? 'rgba(201,162,75,0.35)' : 'rgba(255,255,255,0.07)',
             }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: styleId === s.id ? '#00d4b4' : 'rgba(255,255,255,0.85)', marginBottom: 2 }}>{s.name}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: styleId === s.id ? '#c9a24b' : 'rgba(255,255,255,0.85)', marginBottom: 2 }}>{s.name}</div>
               <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)' }}>{s.desc}</div>
             </button>
           ))}
@@ -540,8 +937,8 @@ export default function BackingTrack() {
             {ROOTS.map((r, i) => (
               <button key={r} onClick={() => setRootIdx(i)} style={{
                 padding: '4px 10px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: '1px solid', transition: 'all 0.15s',
-                background: rootIdx === i ? '#00d4b4' : 'rgba(255,255,255,0.05)',
-                borderColor: rootIdx === i ? '#00d4b4' : 'rgba(255,255,255,0.1)',
+                background: rootIdx === i ? '#c9a24b' : 'rgba(255,255,255,0.05)',
+                borderColor: rootIdx === i ? '#c9a24b' : 'rgba(255,255,255,0.1)',
                 color: rootIdx === i ? '#000' : 'rgba(255,255,255,0.65)',
               }}>{ROOTS_DISPLAY[i]}</button>
             ))}
@@ -552,7 +949,7 @@ export default function BackingTrack() {
           <span style={lbl}>BPM</span>
           <div style={{ fontSize: 40, fontWeight: 900, color: '#fff', letterSpacing: '-2px', textAlign: 'center', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>{bpm}</div>
           <input type="range" min={40} max={300} value={bpm} onChange={e => setBpm(Number(e.target.value))} disabled={playing}
-            style={{ width: '100%', accentColor: '#00d4b4' }} />
+            style={{ width: '100%', accentColor: '#c9a24b' }} />
           <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
             <button onClick={() => setBpm(v => Math.max(40, v - 5))} disabled={playing} style={{ flex: 1, height: 28, borderRadius: 7, background: 'rgba(255,255,255,0.07)', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Minus size={12} /></button>
             <button onClick={() => setBpm(v => Math.min(300, v + 5))} disabled={playing} style={{ flex: 1, height: 28, borderRadius: 7, background: 'rgba(255,255,255,0.07)', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Plus size={12} /></button>
@@ -568,12 +965,12 @@ export default function BackingTrack() {
           <div>
             <div style={{ fontSize: 12, fontWeight: 600, color: '#fff', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
               <span>Piano</span>
-              <button onClick={() => setPianoMute(!pianMute)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: pianMute ? '#e05252' : '#00d4b4', padding: 0 }}>
+              <button onClick={() => setPianoMute(!pianMute)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: pianMute ? '#e05252' : '#c9a24b', padding: 0 }}>
                 {pianMute ? <VolumeX size={14} /> : <Volume2 size={14} />}
               </button>
             </div>
             <input type="range" min={-40} max={0} value={pianoVol} onChange={e => setPianoVol(Number(e.target.value))} disabled={pianMute}
-              style={{ width: '100%', accentColor: '#00d4b4' }} />
+              style={{ width: '100%', accentColor: '#c9a24b' }} />
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>{pianoVol} dB</div>
           </div>
 
@@ -581,12 +978,12 @@ export default function BackingTrack() {
           <div>
             <div style={{ fontSize: 12, fontWeight: 600, color: '#fff', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
               <span>Bass</span>
-              <button onClick={() => setBassMute(!bassMute)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: bassMute ? '#e05252' : '#00d4b4', padding: 0 }}>
+              <button onClick={() => setBassMute(!bassMute)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: bassMute ? '#e05252' : '#c9a24b', padding: 0 }}>
                 {bassMute ? <VolumeX size={14} /> : <Volume2 size={14} />}
               </button>
             </div>
             <input type="range" min={-40} max={0} value={bassVol} onChange={e => setBassVol(Number(e.target.value))} disabled={bassMute}
-              style={{ width: '100%', accentColor: '#00d4b4' }} />
+              style={{ width: '100%', accentColor: '#c9a24b' }} />
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>{bassVol} dB</div>
           </div>
 
@@ -594,12 +991,12 @@ export default function BackingTrack() {
           <div>
             <div style={{ fontSize: 12, fontWeight: 600, color: '#fff', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
               <span>Drums</span>
-              <button onClick={() => setDrumsMute(!drumsMute)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: drumsMute ? '#e05252' : '#00d4b4', padding: 0 }}>
+              <button onClick={() => setDrumsMute(!drumsMute)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: drumsMute ? '#e05252' : '#c9a24b', padding: 0 }}>
                 {drumsMute ? <VolumeX size={14} /> : <Volume2 size={14} />}
               </button>
             </div>
             <input type="range" min={-40} max={0} value={drumsVol} onChange={e => setDrumsVol(Number(e.target.value))} disabled={drumsMute}
-              style={{ width: '100%', accentColor: '#00d4b4' }} />
+              style={{ width: '100%', accentColor: '#c9a24b' }} />
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>{drumsVol} dB</div>
           </div>
         </div>
@@ -614,7 +1011,7 @@ export default function BackingTrack() {
           return (
             <div key={rowIdx} style={{ marginBottom: 6 }}>
               {sectionLabel && (
-                <div style={{ fontSize: 10, color: '#00d4b4', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 3 }}>
+                <div style={{ fontSize: 10, color: '#c9a24b', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 3 }}>
                   Section {sectionLabel}
                 </div>
               )}
@@ -624,9 +1021,9 @@ export default function BackingTrack() {
                   const isActive = barIdx === activeBar
                   return (
                     <div key={barIdx} style={{
-                      border: `1px solid ${isActive ? 'rgba(0,212,180,0.55)' : 'rgba(255,255,255,0.08)'}`,
+                      border: `1px solid ${isActive ? 'rgba(201,162,75,0.55)' : 'rgba(255,255,255,0.08)'}`,
                       borderRadius: 6, padding: '5px 7px',
-                      background: isActive ? 'rgba(0,212,180,0.07)' : 'rgba(255,255,255,0.015)',
+                      background: isActive ? 'rgba(201,162,75,0.07)' : 'rgba(255,255,255,0.015)',
                       minHeight: 40,
                     }}>
                       <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.18)', marginBottom: 3, fontVariantNumeric: 'tabular-nums' }}>
@@ -634,7 +1031,7 @@ export default function BackingTrack() {
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
                         {bar.map((c, ci) => (
-                          <span key={ci} style={{ fontSize: 11, fontWeight: 700, color: isActive ? '#00d4b4' : 'rgba(255,255,255,0.82)', lineHeight: 1.2 }}>
+                          <span key={ci} style={{ fontSize: 11, fontWeight: 700, color: isActive ? '#c9a24b' : 'rgba(255,255,255,0.82)', lineHeight: 1.2 }}>
                             {fmt(c.symbol)}
                             {ci < bar.length - 1 && <span style={{ color: 'rgba(255,255,255,0.25)', fontWeight: 400 }}> / </span>}
                           </span>
@@ -658,9 +1055,9 @@ export default function BackingTrack() {
         cursor: loading ? 'wait' : 'pointer',
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
         border: 'none', transition: 'all 0.2s',
-        background: playing ? 'rgba(224,82,82,0.12)' : loading ? 'rgba(255,255,255,0.07)' : 'linear-gradient(135deg,#00d4b4,#00a896)',
+        background: playing ? 'rgba(224,82,82,0.12)' : loading ? 'rgba(255,255,255,0.07)' : 'linear-gradient(135deg,#c9a24b,#a8842f)',
         color: playing ? '#e05252' : loading ? 'rgba(255,255,255,0.4)' : '#000',
-        boxShadow: playing || loading ? 'none' : '0 0 20px rgba(0,212,180,0.25)',
+        boxShadow: playing || loading ? 'none' : '0 0 20px rgba(201,162,75,0.25)',
         opacity: loading ? 0.7 : 1,
       }}>
         {loading
